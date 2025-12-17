@@ -1,0 +1,308 @@
+/* ===============================================
+   COMPREHENSIVE HORIZONTAL SCROLL & TEXT WRAP FIX
+   =============================================== */
+
+/* 1. GLOBAL BOX-SIZING AND OVERFLOW PREVENTION */
+* {
+  box-sizing: border-box; /* Include padding and borders in element width */
+}
+
+html, body {
+  overflow-x: hidden; /* Prevent horizontal scroll on root elements */
+  max-width: 100vw; /* Never exceed viewport width */
+  margin: 0;
+  padding: 0;
+}
+
+/* 2. CONTAINER AND LAYOUT FIXES */
+.container, 
+.container-fluid, 
+.container-sm, 
+.container-md, 
+.container-lg, 
+.container-xl {
+  max-width: 100% !important;
+  overflow-x: hidden;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+/* Flexbox containers */
+.d-flex {
+  min-width: 0; /* Allow flex items to shrink below their content size */
+}
+
+.flex-grow-1 {
+  min-width: 0; /* Prevent flex-grow items from causing overflow */
+}
+
+/* Grid system fixes */
+.row {
+  margin-left: 0;
+  margin-right: 0;
+  max-width: 100%;
+}
+
+[class*="col-"] {
+  padding-left: 15px;
+  padding-right: 15px;
+  min-width: 0; /* Allow columns to shrink */
+  word-wrap: break-word;
+}
+
+/* 3. TEXT WRAPPING AND WORD BREAKING */
+.text-wrap-fix {
+  /* Apply this class to any problematic text container */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  white-space: normal;
+  hyphens: auto;
+  max-width: 100%;
+}
+
+/* Apply text wrapping to common elements */
+p, div, span, h1, h2, h3, h4, h5, h6, 
+.card-text, .card-title, .alert, 
+.badge, .btn, .form-control {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+/* Long URLs and email addresses */
+.text-break {
+  word-break: break-all !important;
+  overflow-wrap: break-word !important;
+}
+
+/* 4. TABLE RESPONSIVENESS */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+}
+
+.table {
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 0;
+}
+
+.table td, 
+.table th {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  max-width: 0; /* Allow flexible column sizing */
+  padding: 0.75rem;
+  vertical-align: middle;
+}
+
+/* Prevent table from exceeding container */
+.table-container {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* 5. FORM ELEMENTS */
+.form-control, 
+.form-select, 
+textarea {
+  max-width: 100%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  box-sizing: border-box;
+}
+
+/* Input groups */
+.input-group {
+  max-width: 100%;
+  flex-wrap: wrap;
+}
+
+/* 6. CARD AND CONTENT CONTAINERS */
+.card, 
+.card-body, 
+.alert, 
+.modal-content, 
+.modal-body {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+/* 7. NAVIGATION AND SIDEBAR FIXES */
+.navbar {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+.sidebar {
+  overflow-x: hidden;
+  word-wrap: break-word;
+}
+
+.nav-link {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+}
+
+/* 8. IMAGE AND MEDIA RESPONSIVENESS */
+img, 
+video, 
+iframe, 
+embed, 
+object {
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+/* 9. CAROUSEL AND SLIDER FIXES */
+.carousel, 
+.carousel-inner, 
+.carousel-item {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.carousel-item {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* 10. MODAL FIXES */
+.modal-dialog {
+  max-width: calc(100vw - 2rem);
+  margin: 1rem auto;
+}
+
+.modal-content {
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+/* 11. BUTTON AND BADGE FIXES */
+.btn {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  text-overflow: ellipsis;
+}
+
+.badge {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+}
+
+/* 12. UTILITY CLASSES */
+.no-horizontal-scroll {
+  overflow-x: hidden !important;
+  max-width: 100% !important;
+}
+
+.force-wrap {
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  word-break: break-word !important;
+  white-space: normal !important;
+  hyphens: auto !important;
+}
+
+.prevent-overflow {
+  max-width: 100% !important;
+  overflow: hidden !important;
+}
+
+/* 13. RESPONSIVE BREAKPOINTS */
+@media (max-width: 1200px) {
+  .container-xl {
+    max-width: 100% !important;
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+}
+
+@media (max-width: 992px) {
+  .container-lg {
+    max-width: 100% !important;
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+  
+  /* Reduce font sizes if needed */
+  .responsive-text {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .container-md {
+    max-width: 100% !important;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+  
+  /* Stack elements vertically on mobile */
+  .d-flex-mobile-column {
+    flex-direction: column !important;
+  }
+  
+  /* Reduce padding on mobile */
+  .mobile-padding-sm {
+    padding: 0.5rem !important;
+  }
+  
+  /* Smaller text on mobile */
+  .mobile-text-sm {
+    font-size: 0.875rem !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .container-sm {
+    max-width: 100% !important;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+  
+  /* Extra small screens */
+  .mobile-text-xs {
+    font-size: 0.8rem !important;
+  }
+  
+  /* Hide non-essential content on very small screens */
+  .hide-xs {
+    display: none !important;
+  }
+}
+
+/* 14. DEBUGGING UTILITIES (Remove in production) */
+.debug-overflow {
+  outline: 2px solid red !important;
+  overflow: visible !important;
+}
+
+.debug-container {
+  background-color: rgba(255, 0, 0, 0.1) !important;
+  border: 1px dashed red !important;
+}
+
+/* 15. PRINT MEDIA FIXES */
+@media print {
+  * {
+    overflow: visible !important;
+    word-wrap: break-word !important;
+  }
+  
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* ===============================================
+   END OF RESPONSIVE FIXES
+   =============================================== */

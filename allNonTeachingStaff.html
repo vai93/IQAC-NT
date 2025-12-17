@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Event Management</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/sidebar.css" />
+  <style>
+    html, body {
+      height: 100vh;
+      overflow-x: hidden !important; /* Prevent horizontal scroll */
+      max-width: 100vw;
+      margin: 0;
+      padding: 0;
+    }
+    
+    * {
+      box-sizing: border-box;
+    }
+
+    .content-area {
+      overflow-y: auto;
+      overflow-x: hidden;
+      height: calc(100vh - 70px);
+      padding: 2rem;
+      max-width: 100%;
+    }
+    
+    @media (max-width: 768px) {
+      .content-area {
+        height: calc(100vh - 90px);
+      }
+    }
+    
+    @media (max-width: 576px) {
+      .content-area {
+        height: calc(100vh - 95px);
+      }
+    }
+
+    .readonly-note {
+      font-size: 0.9rem;
+      color: #888;
+      margin-top: 5px;
+    }
+
+    .custom-modal-width {
+      max-width: 90vw;
+      width: 100%;
+    }
+
+    .modal-dialog {
+      max-width: 80%;
+      margin: 1.75rem auto;
+    }
+
+    .modal-content {
+      overflow-wrap: break-word;
+      word-wrap: break-word;
+      word-break: break-word;
+    }
+    
+    .table td, .table th {
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      white-space: normal;
+      max-width: 0;
+    }
+    .badge {
+  display: inline-block;
+  max-width: 100%;     /* never exceed td */
+  white-space: normal; /* allow wrapping */
+  text-align: center;
+}
+    .form-control {
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+
+    .modal-body {
+      max-height: 75vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    /* Ensure form controls (select, input, etc.) are fully responsive */
+    .form-select,
+    .form-control {
+      max-width: 100%;
+      white-space: normal;
+      overflow-wrap: break-word;
+      word-break: break-word;
+    }
+
+    label,
+    .form-label,
+    .form-group {
+      word-break: break-word;
+      white-space: normal;
+    }
+
+    /* Dropdown styling */
+    select.form-select {
+      max-height: 200px;
+      overflow-y: auto;
+      overflow-x: auto;
+      border: 1px solid #ced4da;
+      background-color: #fff;
+    }
+
+    select.form-select:focus {
+      outline: none;
+      border-color: #80bdff;
+      box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+
+    /* Dropdown options styling */
+    .form-select option {
+      white-space: nowrap;
+      overflow-x: auto;
+      display: block;
+      padding-right: 2rem;
+    }
+
+    .dropdown-menu {
+      max-height: 200px;
+      overflow-y: auto;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    label span.text-danger {
+      font-weight: bold;
+    }
+
+    .form-floating select,
+    .form-floating input {
+      border: 1px solid #ced4da;
+    }
+
+    .dropdown-checkboxes {
+      position: relative;
+    }
+
+    .dropdown-checkboxes .dropdown-menu {
+      width: 100%;
+      max-height: 300px;
+      overflow-y: auto;
+      padding: 10px;
+      margin-left: -50px !important;
+    }
+
+    .dropdown-checkboxes .form-check {
+      margin-bottom: 5px;
+    }
+
+    /* Download Filter Modal Styles */
+    #columnCheckboxesContainer .form-check {
+      padding: 8px 12px;
+      margin-bottom: 4px;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+    }
+
+    #columnCheckboxesContainer .form-check:hover {
+      background-color: #f8f9fa;
+    }
+
+    #columnCheckboxesContainer .form-check-label {
+      font-size: 0.95rem;
+      word-break: break-word;
+      user-select: none;
+    }
+
+    #columnCheckboxesContainer .form-check-input {
+      margin-top: 0.35rem;
+      cursor: pointer;
+    }
+
+    #selectedCount {
+      font-weight: 500;
+      color: #495057;
+    }
+  </style>
+
+  <script src="https://cdn.jsdelivr.net/npm/docx@7.3.0/build/index.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.2.0/docx.umd.js"></script>
+
+
+</head>
+
+<body>
+  <div class="d-flex">
+    <!-- Sidebar will be injected here -->
+    <div id="sidebarContainer"></div>
+    <div class="flex-grow-1">
+      <!-- Topbar -->
+      <div id="topbarContainer"></div>
+      <!-- Main Content -->
+      <div class="content-area">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="mb-4">All Staff Details </h3> 
+    <button id="downloadBtn" class="btn btn-success btn-lg px-4" type="button">
+      <i class="bi bi-download"></i> Download
+    </button>
+  </div>
+  
+        <!-- ..................all staff.......................................................... -->
+        <div>
+          <!-- Card Header -->
+          <div class="card p-3 shadow-sm mb-2">
+             <div class="d-flex justify-content-between align-items-center flex-wrap">
+              <h6 class="mb-0 flex-grow-1">Teaching staff details</h6>
+              <div class="d-flex gap-2 flex-shrink-0">
+                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" class="btn btn-outline-primary btn-sm" type="button" onclick="toggleTeachingStaff()">
+                  View
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div id="TeachingStaffTable" style="display: none;">
+            <div class="card shadow-sm p-3 mb-3">
+              <div class="row g-3 align-items-center">
+                <!-- Right: Big search box -->
+                <div class="col-md-9 col-sm-8">
+                  <input type="text" id="staffSearchInput" class="form-control"
+                    placeholder="Search by name or MIS code">
+                </div>
+              </div>
+            </div>
+            <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
+              <!-- Event Table -->
+              <table class="table table-bordered table-hover align-middle text-center shadow-sm rounded mb-0">
+                <thead class="table-primary">
+                  <tr>
+                    <th style="width: 5%;">#</th>
+                      <th style="width: 15%;">Name</th>
+                     <th style="width: 15%;">MisCode</th>
+                    <th style="width: 25%;" class="text-start">Mail Id</th>
+                    <th style="width: 20%;">Contact No</th>
+                    <th style="width: 18%;">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="TeachingStaffTableBody">
+                  <tr id="noTeachingStaffRow">
+                    <td colspan="5" class="text-center text-muted">
+                      No participated events found.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="d-flex justify-content-center my-2">
+                <button id="loadMoreTeachingStaffBtn" class="btn btn-outline-secondary btn-sm" style="display:none;">Load More</button>
+              </div>
+            </div>
+          </div>
+          <!-- Modal for Event Details -->
+          <div class="modal fade" id="detailsModal1" tabindex="-1" aria-labelledby="detailsModalLabel1"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+              <div class="modal-content">
+                <div class="modal-header text-white" style="background-color: var(--bs-info);">
+                  <h5 class="modal-title" id="detailsModalLabel1">Staff Details</h5>
+                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                  <ul class="list-group list-group-flush" id="staffDetailsList1">
+                    <!-- JavaScript will populate this -->
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          
+        </div>
+
+        <!-- Update Relieving Date Modal -->
+<div class="modal fade" id="updateRelievingDateModal" tabindex="-1" aria-labelledby="updateRelievingDateLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-header bg-primary text-white py-2">
+        <h5 class="modal-title" id="updateRelievingDateLabel">Update Relieving Date</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <form id="updateRelievingDateForm">
+           <div class="mb-3">
+            <label for="MisCode" class="form-label fw-semibold">MisCode</label>
+            <input type="number" class="form-control" id="MisCode" disabled>
+          </div>
+          <div class="mb-3">
+            <label for="relievingDateInput" class="form-label fw-semibold">Select Relieving Date</label>
+            <input type="date" class="form-control" id="relievingDateInput">
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-success btn-sm" onclick="updateRelievingDate()">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+        <!-- Download Filter Modal -->
+<div class="modal fade" id="downloadFilterModal" tabindex="-1" aria-labelledby="downloadFilterModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-xl">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-header bg-success text-white py-2">
+        <h5 class="modal-title" id="downloadFilterModalLabel">
+          <i class="bi bi-download"></i> Select Columns for Download
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Filter Section -->
+        <div class="mb-4">
+          <h6 class="mb-3 text-primary">
+            <i class="bi bi-funnel"></i> Filter Data
+          </h6>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="filterDepartment" class="form-label small fw-semibold">Department</label>
+              <select class="form-select form-select-sm" id="filterDepartment">
+                <option value="">All Departments</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label for="filterActive" class="form-label small fw-semibold">Active</label>
+              <select class="form-select form-select-sm" id="filterActive">
+                <option value="">All</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label for="filterAdditionalResponsibility" class="form-label small fw-semibold">Additional Responsibility</label>
+              <select class="form-select form-select-sm" id="filterAdditionalResponsibility">
+                <option value="">All</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label for="filterGender" class="form-label small fw-semibold">Gender</label>
+              <select class="form-select form-select-sm" id="filterGender">
+                <option value="">All</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label for="filterHighestQualification" class="form-label small fw-semibold">Highest Qualification</label>
+              <select class="form-select form-select-sm" id="filterHighestQualification">
+                <option value="">All</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label for="filterPhDStatus" class="form-label small fw-semibold">Ph.D. Status</label>
+              <select class="form-select form-select-sm" id="filterPhDStatus">
+                <option value="">All</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label for="filterJoiningDateFrom" class="form-label small fw-semibold">Joining Date From</label>
+              <input type="date" class="form-control form-control-sm" id="filterJoiningDateFrom">
+            </div>
+            <div class="col-md-6">
+              <label for="filterJoiningDateTo" class="form-label small fw-semibold">Joining Date To</label>
+              <input type="date" class="form-control form-control-sm" id="filterJoiningDateTo">
+            </div>
+          </div>
+          <div class="mt-2">
+            <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearAllFilters()">
+              <i class="bi bi-x-circle"></i> Clear All Filters
+            </button>
+          </div>
+        </div>
+
+        <hr class="my-3">
+
+        <!-- Column Selection Section -->
+        <div>
+          <h6 class="mb-3 text-primary">
+            <i class="bi bi-list-check"></i> Select Columns
+          </h6>
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <button type="button" class="btn btn-sm btn-outline-primary" onclick="selectAllColumns()">Select All</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary" onclick="deselectAllColumns()">Deselect All</button>
+            </div>
+            <span class="text-muted" id="selectedCount">0 columns selected</span>
+          </div>
+          
+          <div class="border rounded p-3" style="max-height: 50vh; overflow-y: auto;">
+            <div id="columnCheckboxesContainer" class="row g-2">
+              <!-- Checkboxes will be populated by JavaScript -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-success btn-sm" onclick="downloadSelectedColumns()">
+          <i class="bi bi-download"></i> Download Excel
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+        <!-- Load Sidebar topbar HTML -->
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+  <script src="/js/sidebarTopbar.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+
+        <script src="/js/allStaff.js"></script>
+          <script src="/js/mobile-menu.js"></script>
+
+</body>
+
+
+</html>

@@ -1,0 +1,23 @@
+ body {
+      height: 100vh;
+      overflow: hidden;
+    }
+    .sidebar {
+      min-width: 250px;
+      background-color: #f8f9fa;
+      border-right: 1px solid #dee2e6;
+      height: 100vh;
+    }
+    .sidebar .nav-link.disabled {
+      pointer-events: none;
+      color: #6c757d;
+    }
+    .topbar {
+      background-color: #fff;
+      border-bottom: 1px solid #dee2e6;
+    }
+    .collapse-button {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+    }

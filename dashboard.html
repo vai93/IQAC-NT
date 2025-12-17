@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Non-Teaching Staff Dashboard</title>
+
+  <!-- Bootstrap & Icons (same as IQAC for consistency) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/sidebar.css"/>
+
+  <style>
+    body {
+      background-color: #f8f9fa;
+      font-size: 14px;
+    }
+    @media (min-width: 992px) {
+      body { font-size: 15px; }
+    }
+
+    .summary-card {
+      transition: transform 0.2s;
+    }
+    .summary-card:hover {
+      transform: translateY(-5px);
+    }
+
+    table th, table td {
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body>
+
+<div class="d-flex">
+
+  <!-- Sidebar -->
+  <div id="sidebarContainer"></div>
+
+  <!-- Main Content -->
+  <div class="flex-grow-1">
+
+    <!-- Topbar -->
+    <div id="topbarContainer"></div>
+
+    <!-- Page Content -->
+    <main class="p-4">
+
+      <!-- Summary Cards -->
+      <div class="row g-4 mb-4">
+        <div class="col-md-3">
+          <div class="bg-white p-3 shadow rounded summary-card text-center">
+            <i class="bi bi-people-fill h3 text-primary"></i>
+            <h6 class="text-muted mt-2">Total Staff</h6>
+            <h3 class="fw-bold text-primary" id="totalStaff">0</h3>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="bg-white p-3 shadow rounded summary-card text-center">
+            <i class="bi bi-person-check-fill h3 text-success"></i>
+            <h6 class="text-muted mt-2">Active Staff</h6>
+            <h3 class="fw-bold text-success" id="activeStaff">0</h3>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="bg-white p-3 shadow rounded summary-card text-center">
+            <i class="bi bi-building h3 text-warning"></i>
+            <h6 class="text-muted mt-2">Departments</h6>
+            <h3 class="fw-bold text-warning" id="staffDepartments">0</h3>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="bg-white p-3 shadow rounded summary-card text-center">
+            <i class="bi bi-person-lines-fill h3 text-info"></i>
+            <h6 class="text-muted mt-2">Designations</h6>
+            <h3 class="fw-bold text-info" id="staffDesignations">0</h3>
+          </div>
+        </div>
+      </div>
+
+      <!-- Designation & Category Stats -->
+      <div class="row g-4 mb-4">
+        <div class="col-md-6">
+          <div class="bg-white shadow rounded p-4">
+            <h5 class="mb-3"><i class="bi bi-person-badge me-2"></i>Designation-wise Staff</h5>
+            <table class="table table-bordered table-sm">
+              <thead class="table-light">
+                <tr>
+                  <th>Designation</th>
+                  <th class="text-center">Count</th>
+                </tr>
+              </thead>
+              <tbody id="designationStatsBody"></tbody>
+              <tfoot class="table-secondary">
+                <tr>
+                  <th>Total</th>
+                  <th class="text-center" id="designationTotal">0</th>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="bg-white shadow rounded p-4">
+            <h5 class="mb-3"><i class="bi bi-mortarboard me-2"></i>Qualification-wise Staff</h5>
+            <table class="table table-bordered table-sm">
+              <thead class="table-light">
+                <tr>
+                  <th>Qualification</th>
+                  <th class="text-center">Count</th>
+                </tr>
+              </thead>
+              <tbody id="qualificationStatsBody"></tbody>
+              <tfoot class="table-secondary">
+                <tr>
+                  <th>Total</th>
+                  <th class="text-center" id="qualificationTotal">0</th>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Experience & Employment Type -->
+      <div class="row g-4 mb-4">
+        <div class="col-md-6">
+          <div class="bg-white shadow rounded p-4">
+            <h5 class="mb-3"><i class="bi bi-graph-up me-2"></i>Experience-wise Staff</h5>
+            <p class="small text-muted">Note: Total service experience considered</p>
+            <table class="table table-bordered table-sm">
+              <thead class="table-light">
+                <tr>
+                  <th>Experience Range</th>
+                  <th class="text-center">Count</th>
+                </tr>
+              </thead>
+              <tbody id="experienceStatsBody"></tbody>
+              <tfoot class="table-secondary">
+                <tr>
+                  <th>Total</th>
+                  <th class="text-center" id="experienceTotal">0</th>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="bg-white shadow rounded p-4">
+            <h5 class="mb-3"><i class="bi bi-briefcase-fill me-2"></i>Employment Type</h5>
+            <table class="table table-bordered table-sm">
+              <thead class="table-light">
+                <tr>
+                  <th>Type</th>
+                  <th class="text-center">Count</th>
+                </tr>
+              </thead>
+              <tbody id="employmentTypeBody">
+                <!-- Permanent / Contract / Outsourced -->
+              </tbody>
+              <tfoot class="table-secondary">
+                <tr>
+                  <th>Total</th>
+                  <th class="text-center" id="employmentTotal">0</th>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Updates -->
+      <div class="bg-white shadow rounded p-4">
+        <h5 class="mb-3"><i class="bi bi-clock-history me-2"></i>Recent Staff Updates</h5>
+        <table class="table table-hover">
+          <thead class="table-light">
+            <tr>
+              <th>Date</th>
+              <th>Staff Name</th>
+              <th>Department</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="recentStaffActivity">
+            <!-- Dynamic rows -->
+          </tbody>
+        </table>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- Scripts (same loading pattern as IQAC) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+<script src="/js/sidebarTopbar.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module" src="/js/nonteaching-dashboard.js"></script>
+
+</body>
+</html>
