@@ -49,6 +49,17 @@ function indexToColumnLetter(idx) {
   return columnToLetter(idx + 1);
 }
 
+// Map Department to short Dept code
+function computeDeptCode(department) {
+  if (!department) return null;
+  const d = department.toString().toLowerCase();
+  const isDT = d.includes("dairy technology") || d.includes("food technology");
+  const isRA = d.includes("mechatronic engineering") || d.includes("robotics and automation");
+  if (isDT) return "DT";
+  if (isRA) return "RA";
+  return null;
+}
+
 // Find MIS column with tolerant matching (mirrors faculty registration logic)
 function findMisColumnIndex(headers) {
   const normalize = (value) => (value || "").toString().toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -151,6 +162,9 @@ async function handlePut(req, res) {
     UpdatedDate: payload.UpdatedDate || new Date().toISOString().split("T")[0]
   };
 
+  const deptCode = computeDeptCode(updatedRecord.Department || updatedRecord.department || updatedRecord.Dept);
+  if (deptCode) updatedRecord.Dept = deptCode;
+
   const updatedRow = headers.map(h => updatedRecord[h] ?? "");
   const endColumn = columnToLetter(headers.length);
   const targetRange = `${sheetName}!A${rowIndex + 1}:${endColumn}${rowIndex + 1}`;
@@ -213,6 +227,9 @@ async function handlePost(req, res) {
     MIScode,
     UpdatedDate: payload.UpdatedDate || new Date().toISOString().split("T")[0]
   };
+
+  const deptCode = computeDeptCode(processedRecord.Department || processedRecord.department || processedRecord.Dept);
+  if (deptCode) processedRecord.Dept = deptCode;
 
   // Try to reuse first empty MIS row to preserve formulas (like faculty registration)
   let emptyRowIndex = -1;

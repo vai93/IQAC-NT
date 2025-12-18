@@ -76,6 +76,28 @@ const dropdownOptions = {
   Active: ["Yes", "No"]
 };
 
+// Map of department codes (aligned with faculty profile)
+const deptMap = {
+  "Computer Science and Engineering": "CSE",
+  "Automobile Engineering": "AU",
+  "Petroleum Engineering": "PE",
+  "Dairy Technology": "DT",
+  "Food Technology": "FT",
+  "Biotechnology": "BT",
+  "Chemical Engineering": "CH",
+  "Biomedical Engineering": "BM",
+  "Agricultural Engineering": "AG",
+  "Mechatronics Engineering": "MT",
+  "Robotics and Automation": "RA",
+  "Civil Engineering": "CV",
+  "Electrical Engineering": "EE",
+  "Applied Science and Humanities": "ASH",
+  "Career Development Cell": "CDC",
+  "Dairy Technology/Food Technology": "DT",
+  "Mechatronic Engineering / Robotics and Automation": "RA",
+  "Other": "Other"
+};
+
 const statesOfIndia = [
   "Andhra Pradesh","Arunachal Pradesh","Assam","Bihar","Chhattisgarh","Goa","Gujarat","Haryana","Himachal Pradesh","Jharkhand","Karnataka","Kerala","Madhya Pradesh","Maharashtra","Manipur","Meghalaya","Mizoram","Nagaland","Odisha","Punjab","Rajasthan","Sikkim","Tamil Nadu","Telangana","Tripura","Uttar Pradesh","Uttarakhand","West Bengal","Andaman and Nicobar Islands","Chandigarh","Dadra and Nagar Haveli and Daman and Diu","Delhi","Jammu and Kashmir","Ladakh","Lakshadweep","Puducherry"
 ];
@@ -148,6 +170,7 @@ const columnDefinitions = {
   "MIScode": "MIS Code",
   "FullName": "Full Name",
   "Department": "Department",
+  "Dept": "Dept",
   "ContactNumber": "Contact Number",
   "InstituteEmailId": "Institute Email ID",
   "Seating Room": "Seating Room",
@@ -409,7 +432,7 @@ function renderEditForm(staff) {
   container.innerHTML = "";
 
   Object.entries(columnDefinitions).forEach(([key, label]) => {
-    if (key === "UpdatedDate" || key === "AgeInYears" || key === "PUExperienceInMonths") return; // auto/hidden fields
+    if (key === "UpdatedDate" || key === "AgeInYears" || key === "PUExperienceInMonths" || key === "Dept") return; // auto/hidden fields
     if (isCreateMode && key === "Active") return; // hide Active on create (defaults to Yes)
 
     const col = document.createElement("div");
@@ -517,9 +540,12 @@ async function saveStaffEdits() {
 
   // auto set UpdatedDate to today
   payload.UpdatedDate = formatDateDDMMYYYY(new Date());
+  // auto map Dept from Department
+  const deptKey = (payload.Department || "").trim();
+  payload.Dept = deptMap[deptKey] || "NA";
 
   // required check
-  const requiredKeys = Object.keys(columnDefinitions).filter(k => !["UpdatedDate", "AgeInYears", "PUExperienceInMonths", "RelievingDate"].includes(k));
+  const requiredKeys = Object.keys(columnDefinitions).filter(k => !["UpdatedDate", "AgeInYears", "PUExperienceInMonths", "RelievingDate", "Dept"].includes(k));
   for (const key of requiredKeys) {
     if (isCreateMode && key === "Active") continue; // Active defaulted on create
     if (!payload[key]) {
