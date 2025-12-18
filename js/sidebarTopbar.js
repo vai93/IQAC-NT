@@ -38,7 +38,7 @@ async function loadProfile1() {
 
     // 🔹 Extract roles and current role from profile row
     const rolesString = profile.Roles || "Faculty";
-    const currentRole = window.data.CurrentRole || "Faculty";
+    const currentRole = window.data.CurrentRole || "NT";
 
     // Small delay to ensure DOM is ready
     setTimeout(() => {
@@ -182,6 +182,7 @@ loadProfile1();});
         }
       });
     });
+
 
 
 
