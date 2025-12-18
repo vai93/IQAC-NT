@@ -8,7 +8,7 @@ async function loadProfile1() {
     const res = await fetch(apiUrl, {
       method: "GET",
       headers: {
-        "Authorization": `Bearer ${localStorage.getItem("authTokenAdmin")}`,
+        "Authorization": `Bearer ${localStorage.getItem("authTokenNT")}`,
         "Content-Type": "application/json"
       }
     });
@@ -164,7 +164,7 @@ loadProfile1();});
       document.getElementById('sidebarContainer').innerHTML = sidebarHtml;
       document.getElementById('topbarContainer').innerHTML = topbarHtml;
 
-      const token = localStorage.getItem("authTokenAdmin");
+      const token = localStorage.getItem("authTokenNT");
       if (!token) {
         window.location.href = "logout.html";
         return;

@@ -28,7 +28,7 @@ async function renderEvents1() {
 
       method: "GET",
       headers: {
-        "Authorization": `Bearer ${localStorage.getItem("authTokenAdmin")}`,
+        "Authorization": `Bearer ${localStorage.getItem("authTokenNT")}`,
         "Content-Type": "application/json"
       }
     });

@@ -18,7 +18,7 @@ const facultyCountElem = document.getElementById("facultyCount");
 const departmentCountElem = document.getElementById("departmentCount");
 let totalFaculties;
 // Get auth token
-const authToken = localStorage.getItem("authTokenAdmin");
+const authToken = localStorage.getItem("authTokenNT");
 
 // Global variable to store faculty data for modal
 let allFaculties = [];

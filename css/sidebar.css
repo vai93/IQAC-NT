@@ -338,7 +338,7 @@
 
 /* Enhanced topbar styles */
 .topbar {
-   background: linear-gradient(135deg, #abb2bd 0%, #727f95 100%);
+   background: linear-gradient(135deg, #ebbbf4 0%, #f49bd4 100%);
     /* background: linear-gradient(135deg, #0b8d30 0%, #43c472 100%); */
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
   position: relative;
@@ -445,7 +445,7 @@
 }
 
 .topbar .form-select option {
-  background-color: #abb2bd;
+  background-color: #e194ef;
   color: white;
 }
 
@@ -680,7 +680,7 @@
 
 /* Ensure dropdown doesn't overflow on mobile */
 .topbar #roleDropdown {
-  background-color: #abb2bd;
+  background-color: #e194ef;
   color: white;
   max-width: 100%;
   overflow: hidden;

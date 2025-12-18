@@ -25,7 +25,7 @@ fetch(`/api/auth?abc=${mis}&def=${role}`)
   .then(data => {
       if (data.token) {
         // Store only the token
-        localStorage.setItem("authTokenAdmin", data.token);
+        localStorage.setItem("authTokenNT", data.token);
         window.location.href = "/dashboard.html";
     } else {
         alert(`You are not authorized. ${data.message || ""}`);
