@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Event Management</title>
+  <title>Non Teaching Staff</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 
@@ -185,6 +185,12 @@
       font-weight: 500;
       color: #495057;
     }
+
+    /* Custom header color for staff table */
+    .nt-table thead th {
+      background-color: #eddcf1 !important;
+      color: #4a2a53 !important;
+    }
   </style>
 
   <script src="https://cdn.jsdelivr.net/npm/docx@7.3.0/build/index.min.js"></script>
@@ -195,198 +201,155 @@
 
 <body>
   <div class="d-flex">
-    <!-- Sidebar will be injected here -->
     <div id="sidebarContainer"></div>
     <div class="flex-grow-1">
-      <!-- Topbar -->
       <div id="topbarContainer"></div>
-      <!-- Main Content -->
       <div class="content-area">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-    <h3 class="mb-4">All Staff Details </h3> 
-    <button id="downloadBtn" class="btn btn-success btn-lg px-4" type="button">
-      <i class="bi bi-download"></i> Download
-    </button>
-  </div>
-  
-        <!-- ..................all staff.......................................................... -->
-        <div>
-          <!-- Card Header -->
-          <div class="card p-3 shadow-sm mb-2">
-             <div class="d-flex justify-content-between align-items-center flex-wrap">
-              <h6 class="mb-0 flex-grow-1">Teaching staff details</h6>
-              <div class="d-flex gap-2 flex-shrink-0">
-                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" class="btn btn-outline-primary btn-sm" type="button" onclick="toggleTeachingStaff()">
-                  View
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div id="TeachingStaffTable" style="display: none;">
-            <div class="card shadow-sm p-3 mb-3">
-              <div class="row g-3 align-items-center">
-                <!-- Right: Big search box -->
-                <div class="col-md-9 col-sm-8">
-                  <input type="text" id="staffSearchInput" class="form-control"
-                    placeholder="Search by name or MIS code">
-                </div>
-              </div>
-            </div>
-            <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
-              <!-- Event Table -->
-              <table class="table table-bordered table-hover align-middle text-center shadow-sm rounded mb-0">
-                <thead class="table-primary">
-                  <tr>
-                    <th style="width: 5%;">#</th>
-                      <th style="width: 15%;">Name</th>
-                     <th style="width: 15%;">MisCode</th>
-                    <th style="width: 25%;" class="text-start">Mail Id</th>
-                    <th style="width: 20%;">Contact No</th>
-                    <th style="width: 18%;">Action</th>
-                  </tr>
-                </thead>
-                <tbody id="TeachingStaffTableBody">
-                  <tr id="noTeachingStaffRow">
-                    <td colspan="5" class="text-center text-muted">
-                      No participated events found.
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              <div class="d-flex justify-content-center my-2">
-                <button id="loadMoreTeachingStaffBtn" class="btn btn-outline-secondary btn-sm" style="display:none;">Load More</button>
-              </div>
-            </div>
-          </div>
-          <!-- Modal for Event Details -->
-          <div class="modal fade" id="detailsModal1" tabindex="-1" aria-labelledby="detailsModalLabel1"
-            aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-lg">
-              <div class="modal-content">
-                <div class="modal-header text-white" style="background-color: var(--bs-info);">
-                  <h5 class="modal-title" id="detailsModalLabel1">Staff Details</h5>
-                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                  <ul class="list-group list-group-flush" id="staffDetailsList1">
-                    <!-- JavaScript will populate this -->
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          
-        </div>
-
-        <!-- Update Relieving Date Modal -->
-<div class="modal fade" id="updateRelievingDateModal" tabindex="-1" aria-labelledby="updateRelievingDateLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content border-0 shadow-lg">
-      <div class="modal-header bg-primary text-white py-2">
-        <h5 class="modal-title" id="updateRelievingDateLabel">Update Relieving Date</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-
-      <div class="modal-body">
-        <form id="updateRelievingDateForm">
-           <div class="mb-3">
-            <label for="MisCode" class="form-label fw-semibold">MisCode</label>
-            <input type="number" class="form-control" id="MisCode" disabled>
-          </div>
-          <div class="mb-3">
-            <label for="relievingDateInput" class="form-label fw-semibold">Select Relieving Date</label>
-            <input type="date" class="form-control" id="relievingDateInput">
-          </div>
-        </form>
-      </div>
-
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-success btn-sm" onclick="updateRelievingDate()">Save</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-        <!-- Download Filter Modal -->
-<div class="modal fade" id="downloadFilterModal" tabindex="-1" aria-labelledby="downloadFilterModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-xl">
-    <div class="modal-content border-0 shadow-lg">
-      <div class="modal-header bg-success text-white py-2">
-        <h5 class="modal-title" id="downloadFilterModalLabel">
-          <i class="bi bi-download"></i> Select Columns for Download
-        </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-
-      <div class="modal-body">
-        <!-- Filter Section -->
-        <div class="mb-4">
-          <h6 class="mb-3 text-primary">
-            <i class="bi bi-funnel"></i> Filter Data
-          </h6>
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label for="filterDepartment" class="form-label small fw-semibold">Department</label>
-              <select class="form-select form-select-sm" id="filterDepartment">
-                <option value="">All Departments</option>
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label for="filterActive" class="form-label small fw-semibold">Active</label>
-              <select class="form-select form-select-sm" id="filterActive">
-                <option value="">All</option>
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label for="filterAdditionalResponsibility" class="form-label small fw-semibold">Additional Responsibility</label>
-              <select class="form-select form-select-sm" id="filterAdditionalResponsibility">
-                <option value="">All</option>
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label for="filterGender" class="form-label small fw-semibold">Gender</label>
-              <select class="form-select form-select-sm" id="filterGender">
-                <option value="">All</option>
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label for="filterHighestQualification" class="form-label small fw-semibold">Highest Qualification</label>
-              <select class="form-select form-select-sm" id="filterHighestQualification">
-                <option value="">All</option>
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label for="filterPhDStatus" class="form-label small fw-semibold">Ph.D. Status</label>
-              <select class="form-select form-select-sm" id="filterPhDStatus">
-                <option value="">All</option>
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label for="filterJoiningDateFrom" class="form-label small fw-semibold">Joining Date From</label>
-              <input type="date" class="form-control form-control-sm" id="filterJoiningDateFrom">
-            </div>
-            <div class="col-md-6">
-              <label for="filterJoiningDateTo" class="form-label small fw-semibold">Joining Date To</label>
-              <input type="date" class="form-control form-control-sm" id="filterJoiningDateTo">
-            </div>
-          </div>
-          <div class="mt-2">
-            <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearAllFilters()">
-              <i class="bi bi-x-circle"></i> Clear All Filters
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+          <h3 class="mb-0">Non Teaching Staff</h3>
+          <div class="d-flex gap-2">
+            <button class="btn btn-primary btn-lg px-4" type="button" onclick="openAddStaffModal()">
+              <i class="bi bi-plus-lg"></i> Add Staff
+            </button>
+            <button id="downloadBtn" class="btn btn-success btn-lg px-4" type="button">
+              <i class="bi bi-download"></i> Download
+            </button>
+            <button class="btn btn-outline-secondary btn-lg px-3" type="button" onclick="refreshStaffData()">
+              <i class="bi bi-arrow-clockwise"></i> Refresh
             </button>
           </div>
         </div>
 
-        <hr class="my-3">
+        <div class="card p-3 shadow-sm mb-3">
+          <div class="row g-3 align-items-end">
+            <div class="col-lg-12 col-md-12">
+              <label for="staffSearchInput" class="form-label small fw-semibold">Search</label>
+              <input type="text" id="staffSearchInput" class="form-control" placeholder="Name, MIS, email, contact">
+            </div>
+          </div>
+        </div>
 
-        <!-- Column Selection Section -->
-        <div>
-          <h6 class="mb-3 text-primary">
-            <i class="bi bi-list-check"></i> Select Columns
-          </h6>
+        <div class="card shadow-sm">
+          <div class="table-responsive" style="max-height: 60vh; overflow-y: auto;">
+              <table class="table table-bordered table-hover align-middle text-center mb-0 nt-table">
+              <thead class="position-sticky top-0">
+                <tr>
+                  <th style="width: 4%;">#</th>
+                  <th style="width: 16%;">Name</th>
+                  <th style="width: 12%;">MIS Code</th>
+                  <th style="width: 18%;">Department</th>
+                  <th style="width: 18%;">Staff Category</th>
+                  <th style="width: 16%;">Contact</th>
+                  <th style="width: 16%;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="staffTableBody">
+                <tr>
+                  <td colspan="7" class="text-center text-muted">Loading data...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- View Modal -->
+  <div class="modal fade" id="viewStaffModal" tabindex="-1" aria-labelledby="viewStaffModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl custom-modal-width">
+      <div class="modal-content">
+        <div class="modal-header" style="background-color: #f3d8fa; color: #4a2a53;">
+          <h5 class="modal-title" id="viewStaffModalLabel">Staff Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-3" id="viewDetailsContainer"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Modal -->
+  <div class="modal fade" id="editStaffModal" tabindex="-1" aria-labelledby="editStaffModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl custom-modal-width">
+      <div class="modal-content">
+        <div class="modal-header" style="background-color: #f3d8fa; color: #4a2a53;">
+          <h5 class="modal-title" id="editStaffModalLabel">Edit Staff</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="editStaffForm">
+            <div class="row g-3" id="editFieldsContainer"></div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" onclick="saveStaffEdits()">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Download Modal -->
+  <div class="modal fade" id="downloadFilterModal" tabindex="-1" aria-labelledby="downloadFilterModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header bg-success text-white py-2">
+          <h5 class="modal-title" id="downloadFilterModalLabel">
+            <i class="bi bi-download"></i> Select Columns for Download
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+      
+          <div class="row g-3 mb-3">
+            <div class="col-lg-3 col-md-4">
+              <label for="dlFilterDepartment" class="form-label small fw-semibold">Department</label>
+              <select id="dlFilterDepartment" class="form-select form-select-sm">
+                <option value="">All</option>
+              </select>
+            </div>
+            <div class="col-lg-3 col-md-4">
+              <label for="dlFilterGroup" class="form-label small fw-semibold">Staff Category</label>
+              <select id="dlFilterGroup" class="form-select form-select-sm">
+                <option value="">All</option>
+              </select>
+            </div>
+            <div class="col-lg-3 col-md-4">
+              <label for="dlFilterActive" class="form-label small fw-semibold">Active</label>
+              <select id="dlFilterActive" class="form-select form-select-sm">
+                <option value="">All</option>
+              </select>
+            </div>
+            <div class="col-lg-3 col-md-4">
+              <label for="dlFilterGender" class="form-label small fw-semibold">Gender</label>
+              <select id="dlFilterGender" class="form-select form-select-sm">
+                <option value="">All</option>
+              </select>
+            </div>
+            <div class="col-lg-3 col-md-4">
+              <label for="dlFilterAssociation" class="form-label small fw-semibold">Association Type</label>
+              <select id="dlFilterAssociation" class="form-select form-select-sm">
+                <option value="">All</option>
+              </select>
+            </div>
+            <div class="col-lg-3 col-md-4">
+              <label for="dlFilterHighestQualCat" class="form-label small fw-semibold">Highest Qualification Category</label>
+              <select id="dlFilterHighestQualCat" class="form-select form-select-sm">
+                <option value="">All</option>
+              </select>
+            </div>
+            <div class="col-lg-3 col-md-4">
+              <label for="dlFilterJoiningFrom" class="form-label small fw-semibold">Joining From</label>
+              <input type="date" id="dlFilterJoiningFrom" class="form-control form-control-sm">
+            </div>
+            <div class="col-lg-3 col-md-4">
+              <label for="dlFilterJoiningTo" class="form-label small fw-semibold">Joining To</label>
+              <input type="date" id="dlFilterJoiningTo" class="form-control form-control-sm">
+            </div>
+          </div>
+
           <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
               <button type="button" class="btn btn-sm btn-outline-primary" onclick="selectAllColumns()">Select All</button>
@@ -394,38 +357,27 @@
             </div>
             <span class="text-muted" id="selectedCount">0 columns selected</span>
           </div>
-          
           <div class="border rounded p-3" style="max-height: 50vh; overflow-y: auto;">
-            <div id="columnCheckboxesContainer" class="row g-2">
-              <!-- Checkboxes will be populated by JavaScript -->
-            </div>
+            <div id="columnCheckboxesContainer" class="row g-2"></div>
           </div>
         </div>
-      </div>
-
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-success btn-sm" onclick="downloadSelectedColumns()">
-          <i class="bi bi-download"></i> Download Excel
-        </button>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-success btn-sm" onclick="downloadSelectedColumns()">
+            <i class="bi bi-download"></i> Download Excel
+          </button>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-        <!-- Load Sidebar topbar HTML -->
-        
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
   <script src="/js/sidebarTopbar.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
-
-        <script src="/js/allStaff.js"></script>
-          <script src="/js/mobile-menu.js"></script>
-
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+  <script src="/js/allNonTeachingStaff.js"></script>
+  <script src="/js/mobile-menu.js"></script>
 </body>
-
-
 </html>

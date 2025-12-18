@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Non-Teaching Staff Dashboard</title>
 
-  <!-- Bootstrap & Icons (same as IQAC for consistency) -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet"/>
   <link rel="stylesheet" href="/css/sidebar.css"/>
@@ -18,14 +17,18 @@
     @media (min-width: 992px) {
       body { font-size: 15px; }
     }
-
     .summary-card {
       transition: transform 0.2s;
     }
     .summary-card:hover {
       transform: translateY(-5px);
     }
-
+    .summary-card.clickable-card {
+      cursor: pointer;
+    }
+    .summary-card.clickable-card:hover {
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
     table th, table td {
       vertical-align: middle;
     }
@@ -34,154 +37,387 @@
 <body>
 
 <div class="d-flex">
-
-  <!-- Sidebar -->
   <div id="sidebarContainer"></div>
-
-  <!-- Main Content -->
   <div class="flex-grow-1">
-
-    <!-- Topbar -->
     <div id="topbarContainer"></div>
 
-    <!-- Page Content -->
     <main class="p-4">
-
       <!-- Summary Cards -->
       <div class="row g-4 mb-4">
-        <div class="col-md-3">
-          <div class="bg-white p-3 shadow rounded summary-card text-center">
-            <i class="bi bi-people-fill h3 text-primary"></i>
-            <h6 class="text-muted mt-2">Total Staff</h6>
-            <h3 class="fw-bold text-primary" id="totalStaff">0</h3>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="bg-white p-3 shadow rounded summary-card text-center">
+        <div class="col-md-4">
+          <div class="bg-white p-3 shadow rounded summary-card text-center h-100">
             <i class="bi bi-person-check-fill h3 text-success"></i>
-            <h6 class="text-muted mt-2">Active Staff</h6>
-            <h3 class="fw-bold text-success" id="activeStaff">0</h3>
+            <h6 class="text-muted mt-2">Active Non-Teaching Staff</h6>
+            <h3 class="fw-bold text-success" id="activeStaff">...</h3>
           </div>
         </div>
-        <div class="col-md-3">
-          <div class="bg-white p-3 shadow rounded summary-card text-center">
+        <div class="col-md-4">
+          <div class="bg-white p-3 shadow rounded summary-card text-center h-100 clickable-card"
+               data-bs-toggle="modal" data-bs-target="#departmentFacultyModal">
             <i class="bi bi-building h3 text-warning"></i>
             <h6 class="text-muted mt-2">Departments</h6>
-            <h3 class="fw-bold text-warning" id="staffDepartments">0</h3>
+            <h3 class="fw-bold text-warning" id="staffDepartments">...</h3>
+            <div class="small text-muted">Tap to view department-wise count</div>
           </div>
         </div>
-        <div class="col-md-3">
-          <div class="bg-white p-3 shadow rounded summary-card text-center">
+        <div class="col-md-4">
+          <div class="bg-white p-3 shadow rounded summary-card text-center h-100 clickable-card"
+               data-bs-toggle="modal" data-bs-target="#designationListModal">
             <i class="bi bi-person-lines-fill h3 text-info"></i>
             <h6 class="text-muted mt-2">Designations</h6>
-            <h3 class="fw-bold text-info" id="staffDesignations">0</h3>
+            <h3 class="fw-bold text-info" id="staffDesignations">...</h3>
+            <div class="small text-muted">Tap to view designation-wise count</div>
           </div>
         </div>
       </div>
 
-      <!-- Designation & Category Stats -->
+      <!-- Group & Qualification -->
       <div class="row g-4 mb-4">
         <div class="col-md-6">
-          <div class="bg-white shadow rounded p-4">
-            <h5 class="mb-3"><i class="bi bi-person-badge me-2"></i>Designation-wise Staff</h5>
-            <table class="table table-bordered table-sm">
-              <thead class="table-light">
-                <tr>
-                  <th>Designation</th>
-                  <th class="text-center">Count</th>
-                </tr>
-              </thead>
-              <tbody id="designationStatsBody"></tbody>
-              <tfoot class="table-secondary">
-                <tr>
-                  <th>Total</th>
-                  <th class="text-center" id="designationTotal">0</th>
-                </tr>
-              </tfoot>
-            </table>
+          <div class="bg-white shadow rounded p-4 h-100">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <h5 class="mb-0 d-flex align-items-center">
+                <i class="bi bi-people me-2"></i>Group (Staff Category)
+              </h5>
+            </div>
+            <div id="groupStatsLoading" class="text-center py-3">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+            <div id="groupStatsContent" style="display: none;">
+              <table class="table table-bordered table-sm">
+                <thead class="table-light">
+                  <tr>
+                    <th>Group</th>
+                    <th class="text-center">Count</th>
+                  </tr>
+                </thead>
+                <tbody id="groupStatsBody"></tbody>
+                <tfoot class="table-secondary">
+                  <tr>
+                    <th>Total</th>
+                    <th class="text-center" id="groupTotal">0</th>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
           </div>
         </div>
 
         <div class="col-md-6">
-          <div class="bg-white shadow rounded p-4">
-            <h5 class="mb-3"><i class="bi bi-mortarboard me-2"></i>Qualification-wise Staff</h5>
-            <table class="table table-bordered table-sm">
-              <thead class="table-light">
-                <tr>
-                  <th>Qualification</th>
-                  <th class="text-center">Count</th>
-                </tr>
-              </thead>
-              <tbody id="qualificationStatsBody"></tbody>
-              <tfoot class="table-secondary">
-                <tr>
-                  <th>Total</th>
-                  <th class="text-center" id="qualificationTotal">0</th>
-                </tr>
-              </tfoot>
-            </table>
+          <div class="bg-white shadow rounded p-4 h-100">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <h5 class="mb-0 d-flex align-items-center">
+                <i class="bi bi-mortarboard me-2"></i>Qualification-wise Staff
+              </h5>
+            </div>
+            <div id="qualificationStatsLoading" class="text-center py-3">
+              <div class="spinner-border text-success" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+            <div id="qualificationStatsContent" style="display: none;">
+              <table class="table table-bordered table-sm">
+                <thead class="table-light">
+                  <tr>
+                    <th>Qualification</th>
+                    <th class="text-center">Count</th>
+                  </tr>
+                </thead>
+                <tbody id="qualificationStatsBody"></tbody>
+                <tfoot class="table-secondary">
+                  <tr>
+                    <th>Total</th>
+                    <th class="text-center" id="qualificationTotal">0</th>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Experience & Employment Type -->
+      <!-- Experience -->
       <div class="row g-4 mb-4">
-        <div class="col-md-6">
-          <div class="bg-white shadow rounded p-4">
-            <h5 class="mb-3"><i class="bi bi-graph-up me-2"></i>Experience-wise Staff</h5>
-            <p class="small text-muted">Note: Total service experience considered</p>
-            <table class="table table-bordered table-sm">
-              <thead class="table-light">
-                <tr>
-                  <th>Experience Range</th>
-                  <th class="text-center">Count</th>
-                </tr>
-              </thead>
-              <tbody id="experienceStatsBody"></tbody>
-              <tfoot class="table-secondary">
-                <tr>
-                  <th>Total</th>
-                  <th class="text-center" id="experienceTotal">0</th>
-                </tr>
-              </tfoot>
-            </table>
-          </div>
-        </div>
-
-        <div class="col-md-6">
-          <div class="bg-white shadow rounded p-4">
-            <h5 class="mb-3"><i class="bi bi-briefcase-fill me-2"></i>Employment Type</h5>
-            <table class="table table-bordered table-sm">
-              <thead class="table-light">
-                <tr>
-                  <th>Type</th>
-                  <th class="text-center">Count</th>
-                </tr>
-              </thead>
-              <tbody id="employmentTypeBody">
-                <!-- Permanent / Contract / Outsourced -->
-              </tbody>
-              <tfoot class="table-secondary">
-                <tr>
-                  <th>Total</th>
-                  <th class="text-center" id="employmentTotal">0</th>
-                </tr>
-              </tfoot>
-            </table>
+        <div class="col-12">
+          <div class="bg-white shadow rounded p-4 h-100">
+            <div class="d-flex align-items-center justify-content-between mb-3" id="experienceStatsHeader">
+              <h5 class="mb-0 d-flex align-items-center">
+                <i class="bi bi-graph-up me-2"></i>Experience-wise Staff
+              </h5>
+              <div class="d-flex align-items-center flex-wrap gap-2" id="experienceStatsActions">
+                <select id="experienceSourceSelect" class="form-select form-select-sm">
+                  <option value="PUExperienceInMonths" selected>PU Experience (Years)</option>
+                </select>
+                <select id="experienceFilterOp" class="form-select form-select-sm" style="width: 110px;">
+                  <option value="<">&lt;</option>
+                  <option value="≤">≤</option>
+                  <option value="=" selected>=</option>
+                  <option value="≥">≥</option>
+                  <option value=">">&gt;</option>
+                  <option value="between">Between</option>
+                </select>
+                <div class="d-flex align-items-center gap-1">
+                  <input type="number" step="0.1" id="experienceFilterVal1" class="form-control form-control-sm" style="width: 90px;" placeholder="Years">
+                  <input type="number" step="0.1" id="experienceFilterVal2" class="form-control form-control-sm" style="width: 90px; display:none;" placeholder="and">
+                </div>
+                <button id="experienceFilterApply" class="btn btn-sm btn-outline-primary">Apply</button>
+                <button id="experienceFilterDeptBtn" class="btn btn-sm btn-outline-secondary" disabled>Dept wise</button>
+              </div>
+            </div>
+            <div class="text-end mb-2 small">Count: <span id="experienceFilterCount">0</span></div>
+            <div class="small text-muted mb-2" id="experienceFilterHint">
+              Experience uses PU experience (months converted to years) by default.
+            </div>
+            <div id="experienceStatsLoading" class="text-center py-3">
+              <div class="spinner-border text-info" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+            <div id="experienceStatsContent" style="display: none;">
+              <table class="table table-bordered table-sm">
+                <thead class="table-light">
+                  <tr>
+                    <th>Experience Bucket</th>
+                    <th class="text-center">Count</th>
+                  </tr>
+                </thead>
+                <tbody id="experienceStatsBody"></tbody>
+                <tfoot class="table-secondary">
+                  <tr>
+                    <th>Total</th>
+                    <th class="text-center" id="experienceTotal">0</th>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
           </div>
         </div>
       </div>
-
-
     </main>
   </div>
 </div>
 
-<!-- Scripts (same loading pattern as IQAC) -->
+<!-- Department wise modal -->
+<div class="modal fade" id="departmentFacultyModal" tabindex="-1" aria-labelledby="departmentFacultyModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="departmentFacultyModalLabel">
+          <i class="bi bi-building me-2"></i>Department-wise Staff Count
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="departmentFacultyLoading" class="text-center py-3">
+          <div class="spinner-border text-warning" role="status"><span class="visually-hidden">Loading...</span></div>
+        </div>
+        <div id="departmentFacultyContent" style="display: none;">
+          <table class="table table-striped table-hover">
+            <thead class="table-dark">
+              <tr>
+                <th>#</th>
+                <th>Department</th>
+                <th class="text-center">Count</th>
+              </tr>
+            </thead>
+            <tbody id="departmentFacultyTableBody"></tbody>
+          </table>
+          <div class="mt-2 text-end small">
+            Total Active Staff: <span id="totalFacultyCount">0</span>
+          </div>
+        </div>
+        <div id="departmentFacultyError" class="alert alert-danger" style="display:none;">
+          <i class="bi bi-exclamation-triangle me-2"></i>Unable to load department data.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Designation list modal -->
+<div class="modal fade" id="designationListModal" tabindex="-1" aria-labelledby="designationListModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="designationListModalLabel">
+          <i class="bi bi-person-lines-fill me-2"></i>Designation-wise Staff Count
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="designationListLoading" class="text-center py-3">
+          <div class="spinner-border text-info" role="status"><span class="visually-hidden">Loading...</span></div>
+        </div>
+        <div id="designationListContent" style="display:none;">
+          <table class="table table-striped table-hover">
+            <thead class="table-dark">
+              <tr>
+                <th>#</th>
+                <th>Designation</th>
+                <th class="text-center">Count</th>
+              </tr>
+            </thead>
+            <tbody id="designationListBody"></tbody>
+          </table>
+          <div class="mt-2 text-end small">
+            Unique Designations: <span id="designationListUnique">0</span> |
+            Total Active Staff: <span id="designationListTotal">0</span>
+          </div>
+        </div>
+        <div id="designationListError" class="alert alert-danger" style="display:none;">
+          <i class="bi bi-exclamation-triangle me-2"></i>Unable to load designation data.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Designation dept breakdown modal -->
+<div class="modal fade" id="designationDeptModal" tabindex="-1" aria-labelledby="designationDeptModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="designationDeptModalTitle">Designation</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="designationDeptLoading" class="text-center py-3">
+          <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+        </div>
+        <div id="designationDeptContent" style="display:none;">
+          <table class="table table-striped table-hover">
+            <thead class="table-dark">
+              <tr>
+                <th>#</th>
+                <th>Department</th>
+                <th class="text-center">Count</th>
+              </tr>
+            </thead>
+            <tbody id="designationDeptTableBody"></tbody>
+          </table>
+          <div class="mt-2 text-end small">
+            Total: <span id="designationDeptTotal">0</span>
+          </div>
+        </div>
+        <div id="designationDeptError" class="alert alert-danger" style="display:none;">
+          <i class="bi bi-exclamation-triangle me-2"></i>Unable to load department split.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Group dept breakdown modal -->
+<div class="modal fade" id="groupDeptModal" tabindex="-1" aria-labelledby="groupDeptModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="groupDeptModalTitle">Staff Category</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="groupDeptLoading" class="text-center py-3">
+          <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+        </div>
+        <div id="groupDeptContent" style="display:none;">
+          <table class="table table-striped table-hover">
+            <thead class="table-dark">
+              <tr>
+                <th>#</th>
+                <th>Department</th>
+                <th class="text-center">Count</th>
+              </tr>
+            </thead>
+            <tbody id="groupDeptTableBody"></tbody>
+          </table>
+          <div class="mt-2 text-end small">
+            Total: <span id="groupDeptTotal">0</span>
+          </div>
+        </div>
+        <div id="groupDeptError" class="alert alert-danger" style="display:none;">
+          <i class="bi bi-exclamation-triangle me-2"></i>Unable to load data.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Qualification dept modal -->
+<div class="modal fade" id="qualificationDeptModal" tabindex="-1" aria-labelledby="qualificationDeptModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="qualificationDeptModalTitle">Qualification</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="qualificationDeptLoading" class="text-center py-3">
+          <div class="spinner-border text-success" role="status"><span class="visually-hidden">Loading...</span></div>
+        </div>
+        <div id="qualificationDeptContent" style="display:none;">
+          <table class="table table-striped table-hover">
+            <thead class="table-dark">
+              <tr>
+                <th>#</th>
+                <th>Department</th>
+                <th class="text-center">Count</th>
+              </tr>
+            </thead>
+            <tbody id="qualificationDeptTableBody"></tbody>
+          </table>
+          <div class="mt-2 text-end small">
+            Total: <span id="qualificationDeptTotal">0</span>
+          </div>
+        </div>
+        <div id="qualificationDeptError" class="alert alert-danger" style="display:none;">
+          <i class="bi bi-exclamation-triangle me-2"></i>Unable to load qualification split.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Experience dept modal -->
+<div class="modal fade" id="experienceDeptModal" tabindex="-1" aria-labelledby="experienceDeptModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="experienceDeptModalTitle">Experience</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="experienceDeptLoading" class="text-center py-3">
+          <div class="spinner-border text-info" role="status"><span class="visually-hidden">Loading...</span></div>
+        </div>
+        <div id="experienceDeptContent" style="display:none;">
+          <table class="table table-striped table-hover">
+            <thead class="table-dark">
+              <tr>
+                <th>#</th>
+                <th>Department</th>
+                <th class="text-center">Count</th>
+              </tr>
+            </thead>
+            <tbody id="experienceDeptTableBody"></tbody>
+          </table>
+          <div class="mt-2 text-end small">
+            Total: <span id="experienceDeptTotal">0</span>
+          </div>
+        </div>
+        <div id="experienceDeptError" class="alert alert-danger" style="display:none;">
+          <i class="bi bi-exclamation-triangle me-2"></i>Unable to load experience split.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
 <script src="/js/sidebarTopbar.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script type="module" src="/js/nonteaching-dashboard.js"></script>
+<script type="module" src="/js/dashboard-dynamic.js"></script>
 
 </body>
 </html>
