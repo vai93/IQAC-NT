@@ -545,7 +545,7 @@ async function saveStaffEdits() {
   payload.Dept = deptMap[deptKey] || "NA";
 
   // required check
-  const requiredKeys = Object.keys(columnDefinitions).filter(k => !["UpdatedDate", "AgeInYears", "PUExperienceInMonths", "RelievingDate", "Dept"].includes(k));
+  const requiredKeys = Object.keys(columnDefinitions).filter(k => !["UpdatedDate", "AgeInYears", "PUExperienceInMonths", "RelievingDate", "Dept", "InstituteEmailId"].includes(k));
   for (const key of requiredKeys) {
     if (isCreateMode && key === "Active") continue; // Active defaulted on create
     if (!payload[key]) {
