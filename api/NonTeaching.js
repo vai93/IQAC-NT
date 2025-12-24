@@ -169,7 +169,7 @@ async function handlePut(req, res) {
     if (isFormulaColumn(h)) {
       updatedRecord[h] = existing[h]; // preserve formula/value from sheet
     } else if (isUpdatedDateColumn(h)) {
-      updatedRecord[h] = payload.UpdatedDate || todayIso;
+      updatedRecord[h] = todayIso; // always stamp current date
     } else if (Object.prototype.hasOwnProperty.call(payload, h)) {
       updatedRecord[h] = payload[h];
     } else {
@@ -186,7 +186,7 @@ async function handlePut(req, res) {
   // Update only non-formula columns to avoid overwriting sheet formulas
   const updates = [];
   headers.forEach((h, colIdx) => {
-    if (FORMULA_COLUMNS.includes(h)) return;
+    if (isFormulaColumn(h)) return;
     const colLetter = indexToColumnLetter(colIdx);
     const target = `${sheetName}!${colLetter}${rowIndex + 1}`;
     updates.push({
