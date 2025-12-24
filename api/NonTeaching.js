@@ -279,13 +279,14 @@ async function handlePost(req, res) {
   if (emptyRowIndex !== -1) {
     const updates = [];
     Object.entries(processedRecord).forEach(([key, value]) => {
+      if (isFormulaColumn(key)) return;
       const colIndex = headers.findIndex(
-        (h) => h && h.toString().trim().toLowerCase() === key.toString().trim().toLowerCase()
+        (h) => h && normalizeHeader(h) === normalizeHeader(key)
       );
       if (colIndex !== -1) {
         updates.push({
           range: `${sheetName}!${indexToColumnLetter(colIndex)}${emptyRowIndex + 1}`,
-          values: [[value]]
+          values: [[value ?? ""]]
         });
       }
     });
@@ -336,7 +337,10 @@ async function handlePost(req, res) {
     }
   });
 
-  const newRow = headers.map((h) => processedRecord[h] ?? "");
+  const newRow = headers.map((h) => {
+    if (isFormulaColumn(h)) return "";
+    return processedRecord[h] ?? "";
+  });
   await sheets.spreadsheets.values.update({
     spreadsheetId: SHEET_ID,
     range: `${sheetName}!A${insertRowIndex + 1}`,
