@@ -86,7 +86,7 @@ async function handleGet(req, res) {
   verifyToken(req);
   await ensureAuthClient();
   const sheetName = await getSheetName();
-  const range = `${sheetName}!A1:AJ`;
+  const range = `${sheetName}!A1:AK`;
 
   const response = await sheets.spreadsheets.values.get({
     spreadsheetId: SHEET_ID,
@@ -119,6 +119,13 @@ const FORMULA_COLUMNS = ["active", "ageinyears", "puexperienceinmonths"];
 const normalizeHeader = (h) => (h || "").toString().replace(/\s+/g, "").toLowerCase();
 const isFormulaColumn = (h) => FORMULA_COLUMNS.includes(normalizeHeader(h));
 const isUpdatedDateColumn = (h) => normalizeHeader(h) === "updateddate";
+function todayDDMMYYYY() {
+  const d = new Date();
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const yyyy = d.getFullYear();
+  return `${dd}-${mm}-${yyyy}`;
+}
 
 async function handlePut(req, res) {
   verifyToken(req);
@@ -134,7 +141,7 @@ async function handlePut(req, res) {
 
   await ensureAuthClient();
   const sheetName = await getSheetName();
-  const range = `${sheetName}!A:AJ`;
+  const range = `${sheetName}!A:AK`;
 
   const result = await sheets.spreadsheets.values.get({
     spreadsheetId: SHEET_ID,
@@ -164,12 +171,12 @@ async function handlePut(req, res) {
   });
 
   const updatedRecord = { ...existing };
-  const todayIso = new Date().toISOString().split("T")[0];
+  const todayStr = todayDDMMYYYY();
   headers.forEach(h => {
     if (isFormulaColumn(h)) {
       updatedRecord[h] = existing[h]; // preserve formula/value from sheet
     } else if (isUpdatedDateColumn(h)) {
-      updatedRecord[h] = todayIso; // always stamp current date
+      updatedRecord[h] = todayStr; // always stamp current date
     } else if (Object.prototype.hasOwnProperty.call(payload, h)) {
       updatedRecord[h] = payload[h];
     } else {
@@ -179,14 +186,20 @@ async function handlePut(req, res) {
       if (matchKey) updatedRecord[h] = payload[matchKey];
     }
   });
+  // Ensure UpdatedDate is set even if header normalization mismatches
+  const updatedHeader = headers.find(h => isUpdatedDateColumn(h));
+  if (updatedHeader) updatedRecord[updatedHeader] = todayStr;
+  // also keep a canonical key for downstream use
+  updatedRecord.UpdatedDate = todayStr;
 
   const deptCode = computeDeptCode(updatedRecord.Department || updatedRecord.department || updatedRecord.Dept);
   if (deptCode) updatedRecord.Dept = deptCode;
-
+console.log(updatedRecord);
   // Update only non-formula columns to avoid overwriting sheet formulas
   const updates = [];
   headers.forEach((h, colIdx) => {
     if (isFormulaColumn(h)) return;
+    if (isUpdatedDateColumn(h)) updatedRecord[h] = todayStr; // force ensure value exists
     const colLetter = indexToColumnLetter(colIdx);
     const target = `${sheetName}!${colLetter}${rowIndex + 1}`;
     updates.push({
@@ -225,7 +238,7 @@ async function handlePost(req, res) {
 
   await ensureAuthClient();
   const sheetName = await getSheetName();
-  const range = `${sheetName}!A:AJ`;
+  const range = `${sheetName}!A:AK`;
 
   const result = await sheets.spreadsheets.values.get({
     spreadsheetId: SHEET_ID,
@@ -251,11 +264,11 @@ async function handlePost(req, res) {
     return res.status(409).json({ message: "MIScode already exists." });
   }
 
-  const todayIso = new Date().toISOString().split("T")[0];
+  const todayStr = todayDDMMYYYY();
   const processedRecord = {
     ...payload,
     MIScode,
-    UpdatedDate: payload.UpdatedDate || todayIso
+    UpdatedDate: todayStr
   };
 
   // leave formula columns blank so sheet formulas remain intact
