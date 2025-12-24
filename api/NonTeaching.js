@@ -114,6 +114,8 @@ async function handleGet(req, res) {
   });
 }
 
+const FORMULA_COLUMNS = ["Active", "AgeInYears", "PUExperienceInMonths"];
+
 async function handlePut(req, res) {
   verifyToken(req);
   if (!SHEET_ID) {
@@ -132,7 +134,8 @@ async function handlePut(req, res) {
 
   const result = await sheets.spreadsheets.values.get({
     spreadsheetId: SHEET_ID,
-    range
+    range,
+    valueRenderOption: "FORMULA"
   });
 
   const rows = result.data.values || [];
@@ -156,11 +159,16 @@ async function handlePut(req, res) {
     existing[h] = rows[rowIndex][i] || "";
   });
 
-  const updatedRecord = {
-    ...existing,
-    ...payload,
-    UpdatedDate: payload.UpdatedDate || new Date().toISOString().split("T")[0]
-  };
+  const updatedRecord = { ...existing };
+  headers.forEach(h => {
+    if (FORMULA_COLUMNS.includes(h)) {
+      updatedRecord[h] = existing[h]; // preserve formula/value from sheet
+    } else if (h === "UpdatedDate") {
+      updatedRecord[h] = payload.UpdatedDate || new Date().toISOString().split("T")[0];
+    } else if (Object.prototype.hasOwnProperty.call(payload, h)) {
+      updatedRecord[h] = payload[h];
+    }
+  });
 
   const deptCode = computeDeptCode(updatedRecord.Department || updatedRecord.department || updatedRecord.Dept);
   if (deptCode) updatedRecord.Dept = deptCode;
@@ -227,6 +235,11 @@ async function handlePost(req, res) {
     MIScode,
     UpdatedDate: payload.UpdatedDate || new Date().toISOString().split("T")[0]
   };
+
+  // leave formula columns blank so sheet formulas remain intact
+  FORMULA_COLUMNS.forEach(col => {
+    if (headers.includes(col)) processedRecord[col] = "";
+  });
 
   const deptCode = computeDeptCode(processedRecord.Department || processedRecord.department || processedRecord.Dept);
   if (deptCode) processedRecord.Dept = deptCode;
