@@ -538,16 +538,17 @@ async function saveStaffEdits() {
     payload[key] = value;
   });
 
-  // auto set UpdatedDate to today
-  payload.UpdatedDate = formatDateDDMMYYYY(new Date());
+  // auto set UpdatedDate to today (ISO for sheet)
+  payload.UpdatedDate = new Date().toISOString().split("T")[0];
   // auto map Dept from Department
   const deptKey = (payload.Department || "").trim();
   payload.Dept = deptMap[deptKey] || "NA";
 
   // required check
-  const requiredKeys = Object.keys(columnDefinitions).filter(k => !["UpdatedDate", "AgeInYears", "PUExperienceInMonths", "RelievingDate", "Dept", "InstituteEmailId"].includes(k));
+  const requiredKeys = Object.keys(columnDefinitions).filter(k =>
+    !["UpdatedDate", "AgeInYears", "PUExperienceInMonths", "RelievingDate", "Dept", "InstituteEmailId", "Active"].includes(k)
+  );
   for (const key of requiredKeys) {
-    if (isCreateMode && key === "Active") continue; // Active defaulted on create
     if (!payload[key]) {
       alert(`${columnDefinitions[key]} is required.`);
       return;
@@ -555,6 +556,11 @@ async function saveStaffEdits() {
   }
 
   if (!payload.Active) payload.Active = "Yes"; // default Active when not present (create)
+
+  // drop formula-driven fields so sheet formulas stay intact
+  delete payload.AgeInYears;
+  delete payload.PUExperienceInMonths;
+  delete payload.Active;
 
   // simple email validation for InstituteEmailId if present
   if (payload.InstituteEmailId) {
