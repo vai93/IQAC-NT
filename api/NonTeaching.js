@@ -114,7 +114,11 @@ async function handleGet(req, res) {
   });
 }
 
-const FORMULA_COLUMNS = ["Active", "AgeInYears", "PUExperienceInMonths"];
+const FORMULA_COLUMNS = ["active", "ageinyears", "puexperienceinmonths"];
+
+const normalizeHeader = (h) => (h || "").toString().replace(/\s+/g, "").toLowerCase();
+const isFormulaColumn = (h) => FORMULA_COLUMNS.includes(normalizeHeader(h));
+const isUpdatedDateColumn = (h) => normalizeHeader(h) === "updateddate";
 
 async function handlePut(req, res) {
   verifyToken(req);
@@ -160,29 +164,46 @@ async function handlePut(req, res) {
   });
 
   const updatedRecord = { ...existing };
+  const todayIso = new Date().toISOString().split("T")[0];
   headers.forEach(h => {
-    if (FORMULA_COLUMNS.includes(h)) {
+    if (isFormulaColumn(h)) {
       updatedRecord[h] = existing[h]; // preserve formula/value from sheet
-    } else if (h === "UpdatedDate") {
-      updatedRecord[h] = payload.UpdatedDate || new Date().toISOString().split("T")[0];
+    } else if (isUpdatedDateColumn(h)) {
+      updatedRecord[h] = payload.UpdatedDate || todayIso;
     } else if (Object.prototype.hasOwnProperty.call(payload, h)) {
       updatedRecord[h] = payload[h];
+    } else {
+      // try payload fallback by normalized header match
+      const normH = normalizeHeader(h);
+      const matchKey = Object.keys(payload).find(k => normalizeHeader(k) === normH);
+      if (matchKey) updatedRecord[h] = payload[matchKey];
     }
   });
 
   const deptCode = computeDeptCode(updatedRecord.Department || updatedRecord.department || updatedRecord.Dept);
   if (deptCode) updatedRecord.Dept = deptCode;
 
-  const updatedRow = headers.map(h => updatedRecord[h] ?? "");
-  const endColumn = columnToLetter(headers.length);
-  const targetRange = `${sheetName}!A${rowIndex + 1}:${endColumn}${rowIndex + 1}`;
-
-  await sheets.spreadsheets.values.update({
-    spreadsheetId: SHEET_ID,
-    range: targetRange,
-    valueInputOption: "RAW",
-    requestBody: { values: [updatedRow] }
+  // Update only non-formula columns to avoid overwriting sheet formulas
+  const updates = [];
+  headers.forEach((h, colIdx) => {
+    if (FORMULA_COLUMNS.includes(h)) return;
+    const colLetter = indexToColumnLetter(colIdx);
+    const target = `${sheetName}!${colLetter}${rowIndex + 1}`;
+    updates.push({
+      range: target,
+      values: [[updatedRecord[h] ?? ""]]
+    });
   });
+
+  if (updates.length) {
+    await sheets.spreadsheets.values.batchUpdate({
+      spreadsheetId: SHEET_ID,
+      requestBody: {
+        valueInputOption: "USER_ENTERED",
+        data: updates
+      }
+    });
+  }
 
   return res.status(200).json({
     message: "Record updated successfully",
@@ -230,15 +251,16 @@ async function handlePost(req, res) {
     return res.status(409).json({ message: "MIScode already exists." });
   }
 
+  const todayIso = new Date().toISOString().split("T")[0];
   const processedRecord = {
     ...payload,
     MIScode,
-    UpdatedDate: payload.UpdatedDate || new Date().toISOString().split("T")[0]
+    UpdatedDate: payload.UpdatedDate || todayIso
   };
 
   // leave formula columns blank so sheet formulas remain intact
   FORMULA_COLUMNS.forEach(col => {
-    if (headers.includes(col)) processedRecord[col] = "";
+    if (headers.some(h => normalizeHeader(h) === col)) processedRecord[col] = "";
   });
 
   const deptCode = computeDeptCode(processedRecord.Department || processedRecord.department || processedRecord.Dept);
